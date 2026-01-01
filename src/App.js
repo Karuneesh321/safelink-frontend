@@ -1,7 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle, MapPin, Phone, User, LogOut, Activity, CheckCircle, Clock, Users, Bell } from 'lucide-react';
+import { AlertTriangle, MapPin, Phone, User, LogOut, Activity, CheckCircle, Clock, Users, Bell, Info, BookOpen, Mail, Building, Award, Target, Shield } from 'lucide-react';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import About from "./pages/About";
+import Guides from "./pages/Guides";
 
-const API_URL = 'https://safelink-backend-hw4h.onrender.com/api';
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/about" element={<About />} />
+        <Route path="/guides" element={<Guides />} />
+      </Routes>
+    </Router>
+  );
+}
+
+const API_URL = 'http://localhost:5001/api';
 
 export default function SafeLinkApp() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -86,7 +100,7 @@ export default function SafeLinkApp() {
   };
 
   if (!token) {
-    return <AuthPage setToken={setToken} setUser={setUser} setCurrentPage={setCurrentPage} />;
+    return <LandingPage setToken={setToken} setUser={setUser} setCurrentPage={setCurrentPage} />;
   }
 
   return (
@@ -121,6 +135,20 @@ export default function SafeLinkApp() {
             >
               My Alerts
             </button>
+
+            <button
+              onClick={() => setCurrentPage('guides')}
+              className={`px-4 py-2 rounded-lg ${currentPage === 'guides' ? 'bg-red-600 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+            >
+              Guides
+            </button>
+
+            <button
+              onClick={() => setCurrentPage('about')}
+              className={`px-4 py-2 rounded-lg ${currentPage === 'about' ? 'bg-red-600 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+            >
+              About
+            </button>
             
             <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg">
               <User size={20} />
@@ -142,7 +170,57 @@ export default function SafeLinkApp() {
         {currentPage === 'home' && <HomePage location={location} token={token} fetchMyAlerts={fetchMyAlerts} />}
         {currentPage === 'dashboard' && <Dashboard alerts={alerts} stats={stats} token={token} fetchAlerts={fetchAlerts} />}
         {currentPage === 'myAlerts' && <MyAlerts alerts={alerts} />}
+        {currentPage === 'guides' && <EmergencyGuides />}
+        {currentPage === 'about' && <AboutPage />}
       </main>
+    </div>
+  );
+}
+
+function LandingPage({ setToken, setUser, setCurrentPage }) {
+  const [showAuth, setShowAuth] = useState(false);
+
+  if (showAuth) {
+    return <AuthPage setToken={setToken} setUser={setUser} setCurrentPage={setCurrentPage} />;
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-red-500 to-orange-600">
+      <div className="max-w-6xl mx-auto px-4 py-12">
+        <div className="text-center mb-12">
+          <AlertTriangle className="mx-auto text-white mb-4" size={80} />
+          <h1 className="text-5xl font-bold text-white mb-4">SafeLink</h1>
+          <p className="text-2xl text-white mb-8">Emergency Alert System</p>
+          <p className="text-xl text-white opacity-90 mb-8">Help is just one click away</p>
+          
+          <button
+            onClick={() => setShowAuth(true)}
+            className="bg-white text-red-600 px-8 py-4 rounded-full text-xl font-bold hover:bg-gray-100 transition-all shadow-xl"
+          >
+            Get Started →
+          </button>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6 mt-16">
+          <div className="bg-white rounded-xl p-6 shadow-xl">
+            <div className="text-4xl mb-4">🚨</div>
+            <h3 className="text-xl font-bold mb-2">One-Click Alert</h3>
+            <p className="text-gray-600">Send emergency alerts instantly with your GPS location</p>
+          </div>
+
+          <div className="bg-white rounded-xl p-6 shadow-xl">
+            <div className="text-4xl mb-4">👥</div>
+            <h3 className="text-xl font-bold mb-2">Community Support</h3>
+            <p className="text-gray-600">Connect with nearby volunteers ready to help</p>
+          </div>
+
+          <div className="bg-white rounded-xl p-6 shadow-xl">
+            <div className="text-4xl mb-4">📱</div>
+            <h3 className="text-xl font-bold mb-2">Real-Time Updates</h3>
+            <p className="text-gray-600">Get SMS and email notifications instantly</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -332,7 +410,7 @@ function HomePage({ location, token, fetchMyAlerts }) {
         <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded">
           <div className="flex items-center gap-2">
             <CheckCircle className="text-green-500" />
-            <p className="font-medium text-green-800">Emergency alert sent! Help is on the way.</p>
+            <p className="font-medium text-green-800">Emergency alert sent! Help is on the way. You will receive SMS and email notifications.</p>
           </div>
         </div>
       )}
@@ -352,7 +430,7 @@ function HomePage({ location, token, fetchMyAlerts }) {
         ) : (
           <div className="text-left space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">Select Emergency Type *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-3">Select Emergency Type</label>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {emergencyTypes.map((type) => (
                   <button
@@ -372,11 +450,11 @@ function HomePage({ location, token, fetchMyAlerts }) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Description (Optional)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Brief description of the situation..."
+                placeholder="Brief description..."
                 className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500"
                 rows="3"
               />
@@ -403,7 +481,7 @@ function HomePage({ location, token, fetchMyAlerts }) {
           <div className="mt-8 p-4 bg-gray-50 rounded-lg">
             <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
               <MapPin size={16} className="text-green-600" />
-              <span>Location detected: {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}</span>
+              <span>Location: {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}</span>
             </div>
           </div>
         )}
@@ -543,7 +621,7 @@ function Dashboard({ alerts, stats, token, fetchAlerts }) {
                       </span>
                       <span className="flex items-center gap-1">
                         <MapPin size={14} />
-                        {alert.location.coordinates[1].toFixed(4)}, {alert.location.coordinates[0].toFixed(4)}
+                        Location shared
                       </span>
                     </div>
                   </div>
@@ -587,6 +665,7 @@ function MyAlerts({ alerts }) {
     <div className="bg-white rounded-xl shadow">
       <div className="p-6 border-b">
         <h2 className="text-xl font-bold text-gray-800">My Emergency Alerts</h2>
+        <p className="text-sm text-gray-600 mt-1">You receive SMS and email notifications for updates</p>
       </div>
 
       <div className="divide-y">
@@ -630,6 +709,107 @@ function MyAlerts({ alerts }) {
           ))
         )}
       </div>
+    </div>
+  );
+}
+
+function EmergencyGuides() {
+  const [selectedGuide, setSelectedGuide] = useState(null);
+
+  const guides = [
+    // ... all your guides data stays the same ...
+  ];
+
+  if (selectedGuide) {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <button
+          onClick={() => setSelectedGuide(null)}
+          className="mb-6 text-red-600 hover:underline flex items-center gap-2"
+        >
+          ← Back to All Guides
+        </button>
+
+        <div className="bg-white rounded-2xl shadow-xl p-8">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="text-6xl">{selectedGuide.icon}</div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800">{selectedGuide.title}</h1>
+              <p className="text-gray-600">What to do in this emergency</p>
+            </div>
+          </div>
+
+          <div className="mb-8">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Step-by-Step Guide</h2>
+            <div className="space-y-3">
+              {selectedGuide.steps.map((step, index) => (
+                <div key={index} className="flex gap-3 items-start">
+                  <div className="bg-red-100 text-red-600 font-bold rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">
+                    {index + 1}
+                  </div>
+                  <p className="text-gray-700 pt-1">{step}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-red-50 rounded-xl p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Emergency Contact Numbers</h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              {selectedGuide.importantNumbers.map((contact, index) => (
+                <div key={index} className="flex items-center justify-between bg-white p-4 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <Phone className="text-red-600" size={20} />
+                    <span className="font-medium text-gray-800">{contact.name}</span>
+                  </div>
+                  
+                    href={`tel:${contact.number}`}
+                    className="text-xl font-bold text-red-600 hover:underline"
+                 
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-6xl mx-auto">
+      <div className="text-center mb-8">
+        <BookOpen className="mx-auto text-red-600 mb-4" size={64} />
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">Emergency Response Guides</h1>
+        <p className="text-gray-600">Quick guides for handling different emergency situations</p>
+      </div>
+
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {guides.map((guide) => (
+          <div
+            key={guide.id}
+            onClick={() => setSelectedGuide(guide)}
+            className="bg-white rounded-xl shadow-lg p-6 cursor-pointer hover:shadow-xl transition-all transform hover:-translate-y-1"
+          >
+            <div className="text-center">
+              <div className="text-6xl mb-4">{guide.icon}</div>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">{guide.title}</h3>
+              <p className="text-gray-600 text-sm mb-4">{guide.steps.length} steps to follow</p>
+              <button className="text-red-600 font-medium hover:underline">
+                View Guide →
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+} // ← EmergencyGuides function ENDS here
+
+// ← AboutPage function STARTS here (OUTSIDE EmergencyGuides)
+function AboutPage() {
+  return (
+    <div className="max-w-6xl mx-auto space-y-12">
+      {/* ... rest of AboutPage code ... */}
     </div>
   );
 }
