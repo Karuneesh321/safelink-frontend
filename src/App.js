@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle, MapPin, Phone, User, LogOut, Activity, CheckCircle, Clock, Users, Bell, Info, BookOpen, Mail, Building, Award, Target, Shield } from 'lucide-react';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import About from "./pages/About";
-import Guides from "./pages/Guides";
+// import About from "./pages/About";
+// import Guides from "./pages/Guides";
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/about" element={<About />} />
-        <Route path="/guides" element={<Guides />} />
+        {/* Routes for About and Guides pages can be added here when pages are available */}
       </Routes>
     </Router>
   );
@@ -100,11 +100,17 @@ export default function SafeLinkApp() {
   };
 
   if (!token) {
-    return <LandingPage setToken={setToken} setUser={setUser} setCurrentPage={setCurrentPage} />;
+    return (
+      <>
+        <SpeedInsights />
+        <LandingPage setToken={setToken} setUser={setUser} setCurrentPage={setCurrentPage} />
+      </>
+    );
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50">
+      <SpeedInsights />
       <header className="bg-white shadow-md">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
