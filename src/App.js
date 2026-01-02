@@ -167,8 +167,7 @@ export default function SafeLinkApp() {
         {currentPage === 'home' && <HomePage location={location} token={token} fetchMyAlerts={fetchMyAlerts} />}
         {currentPage === 'dashboard' && <Dashboard alerts={alerts} stats={stats} token={token} fetchAlerts={fetchAlerts} />}
         {currentPage === 'myAlerts' && <MyAlerts alerts={alerts} />}
-        {currentPage === 'guides' && <EmergencyGuides />}
-        {currentPage === 'about' && <AboutPage />}
+        
       </main>
     </div>
   );
