@@ -6,7 +6,7 @@ import { SpeedInsights } from '@vercel/speed-insights/react';
 
 
 
-const API_URL = 'https://safelink-backend-hw4h.onrender.com';
+const API_URL = 'https://safelink-backend-hw4h.onrender.com/api';
 
 export default function SafeLinkApp() {
   const [currentPage, setCurrentPage] = useState('home');
