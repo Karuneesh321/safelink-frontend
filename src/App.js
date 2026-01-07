@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle, MapPin, Phone, User, LogOut, Activity, CheckCircle, Clock, Users, Bell, Info, BookOpen, Mail, Building, Award, Target, Shield } from 'lucide-react';
-<<<<<<< HEAD
 
-=======
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
-import { SpeedInsights } from '@vercel/speed-insights/react';
->>>>>>> e9a2f9a34c7739462d6a6707bc7e634732c3eae4
 
 
 
@@ -97,7 +91,7 @@ export default function SafeLinkApp() {
   if (!token) {
     return (
       <>
-        <SpeedInsights />
+        
         <LandingPage setToken={setToken} setUser={setUser} setCurrentPage={setCurrentPage} />
       </>
     );
@@ -105,7 +99,7 @@ export default function SafeLinkApp() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50">
-      <SpeedInsights />
+      
       <header className="bg-white shadow-md">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
@@ -488,6 +482,7 @@ function HomePage({ location, token, fetchMyAlerts }) {
         {location && (
   <div className="mt-4 rounded-xl overflow-hidden shadow">
     <iframe
+      title="User Location Map"
       width="100%"
       height="300"
       style={{ border: 0 }}
