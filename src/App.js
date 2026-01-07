@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle, MapPin, Phone, User, LogOut, Activity, CheckCircle, Clock, Users, Bell, Info, BookOpen, Mail, Building, Award, Target, Shield } from 'lucide-react';
+<<<<<<< HEAD
+
+=======
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+import { SpeedInsights } from '@vercel/speed-insights/react';
+>>>>>>> e9a2f9a34c7739462d6a6707bc7e634732c3eae4
 
 
-const API_URL = 'http://localhost:5001/api';
+
+const API_URL = 'https://safelink-backend-hw4h.onrender.com/api';
 
 export default function SafeLinkApp() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -87,11 +95,17 @@ export default function SafeLinkApp() {
   };
 
   if (!token) {
-    return <LandingPage setToken={setToken} setUser={setUser} setCurrentPage={setCurrentPage} />;
+    return (
+      <>
+        <SpeedInsights />
+        <LandingPage setToken={setToken} setUser={setUser} setCurrentPage={setCurrentPage} />
+      </>
+    );
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50">
+      <SpeedInsights />
       <header className="bg-white shadow-md">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
@@ -157,7 +171,7 @@ export default function SafeLinkApp() {
         {currentPage === 'home' && <HomePage location={location} token={token} fetchMyAlerts={fetchMyAlerts} />}
         {currentPage === 'dashboard' && <Dashboard alerts={alerts} stats={stats} token={token} fetchAlerts={fetchAlerts} />}
         {currentPage === 'myAlerts' && <MyAlerts alerts={alerts} />}
-       
+
       </main>
     </div>
   );
@@ -713,5 +727,3 @@ function MyAlerts({ alerts }) {
   );
 }
 
-
- 
