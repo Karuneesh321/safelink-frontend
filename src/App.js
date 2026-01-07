@@ -1,19 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle, MapPin, Phone, User, LogOut, Activity, CheckCircle, Clock, Users, Bell, Info, BookOpen, Mail, Building, Award, Target, Shield } from 'lucide-react';
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import About from "./pages/About";
-import Guides from "./pages/Guides";
 
-function App() {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/about" element={<About />} />
-        <Route path="/guides" element={<Guides />} />
-      </Routes>
-    </Router>
-  );
-}
 
 const API_URL = 'http://localhost:5001/api';
 
@@ -170,8 +157,7 @@ export default function SafeLinkApp() {
         {currentPage === 'home' && <HomePage location={location} token={token} fetchMyAlerts={fetchMyAlerts} />}
         {currentPage === 'dashboard' && <Dashboard alerts={alerts} stats={stats} token={token} fetchAlerts={fetchAlerts} />}
         {currentPage === 'myAlerts' && <MyAlerts alerts={alerts} />}
-        {currentPage === 'guides' && <EmergencyGuides />}
-        {currentPage === 'about' && <AboutPage />}
+       
       </main>
     </div>
   );
@@ -485,8 +471,22 @@ function HomePage({ location, token, fetchMyAlerts }) {
             </div>
           </div>
         )}
+        {location && (
+  <div className="mt-4 rounded-xl overflow-hidden shadow">
+    <iframe
+      width="100%"
+      height="300"
+      style={{ border: 0 }}
+      loading="lazy"
+      allowFullScreen
+      src={`https://www.google.com/maps?q=${location.latitude},${location.longitude}&z=15&output=embed`}
+    />
+  </div>
+)}
+
       </div>
     </div>
+    
   );
 }
 
@@ -713,103 +713,5 @@ function MyAlerts({ alerts }) {
   );
 }
 
-function EmergencyGuides() {
-  const [selectedGuide, setSelectedGuide] = useState(null);
 
-  const guides = [
-    // ... all your guides data stays the same ...
-  ];
-
-  if (selectedGuide) {
-    return (
-      <div className="max-w-4xl mx-auto">
-        <button
-          onClick={() => setSelectedGuide(null)}
-          className="mb-6 text-red-600 hover:underline flex items-center gap-2"
-        >
-          ← Back to All Guides
-        </button>
-
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="text-6xl">{selectedGuide.icon}</div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-800">{selectedGuide.title}</h1>
-              <p className="text-gray-600">What to do in this emergency</p>
-            </div>
-          </div>
-
-          <div className="mb-8">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Step-by-Step Guide</h2>
-            <div className="space-y-3">
-              {selectedGuide.steps.map((step, index) => (
-                <div key={index} className="flex gap-3 items-start">
-                  <div className="bg-red-100 text-red-600 font-bold rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">
-                    {index + 1}
-                  </div>
-                  <p className="text-gray-700 pt-1">{step}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-red-50 rounded-xl p-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Emergency Contact Numbers</h2>
-            <div className="grid md:grid-cols-2 gap-4">
-              {selectedGuide.importantNumbers.map((contact, index) => (
-                <div key={index} className="flex items-center justify-between bg-white p-4 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Phone className="text-red-600" size={20} />
-                    <span className="font-medium text-gray-800">{contact.name}</span>
-                  </div>
-                  
-                    href={`tel:${contact.number}`}
-                    className="text-xl font-bold text-red-600 hover:underline"
-                 
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="max-w-6xl mx-auto">
-      <div className="text-center mb-8">
-        <BookOpen className="mx-auto text-red-600 mb-4" size={64} />
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Emergency Response Guides</h1>
-        <p className="text-gray-600">Quick guides for handling different emergency situations</p>
-      </div>
-
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {guides.map((guide) => (
-          <div
-            key={guide.id}
-            onClick={() => setSelectedGuide(guide)}
-            className="bg-white rounded-xl shadow-lg p-6 cursor-pointer hover:shadow-xl transition-all transform hover:-translate-y-1"
-          >
-            <div className="text-center">
-              <div className="text-6xl mb-4">{guide.icon}</div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">{guide.title}</h3>
-              <p className="text-gray-600 text-sm mb-4">{guide.steps.length} steps to follow</p>
-              <button className="text-red-600 font-medium hover:underline">
-                View Guide →
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-} // ← EmergencyGuides function ENDS here
-
-// ← AboutPage function STARTS here (OUTSIDE EmergencyGuides)
-function AboutPage() {
-  return (
-    <div className="max-w-6xl mx-auto space-y-12">
-      {/* ... rest of AboutPage code ... */}
-    </div>
-  );
-}
+ 
