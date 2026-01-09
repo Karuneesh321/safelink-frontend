@@ -4,7 +4,7 @@ import { AlertTriangle, MapPin, Phone, User, LogOut, Activity, CheckCircle, Cloc
 
 
 
-const API_URL = 'https://safelink-backend-hw4h.onrender.com/api';
+const API_URL = 'http://localhost:5001/api';
 
 export default function SafeLinkApp() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -144,6 +144,13 @@ export default function SafeLinkApp() {
             >
               About
             </button>
+
+            <button
+              onClick={() => setCurrentPage('nearbyServices')}
+              className={`px-4 py-2 rounded-lg ${currentPage === 'nearbyServices' ? 'bg-red-600 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+            >
+              Nearby Help
+            </button>
             
             <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg">
               <User size={20} />
@@ -165,6 +172,7 @@ export default function SafeLinkApp() {
         {currentPage === 'home' && <HomePage location={location} token={token} fetchMyAlerts={fetchMyAlerts} />}
         {currentPage === 'dashboard' && <Dashboard alerts={alerts} stats={stats} token={token} fetchAlerts={fetchAlerts} />}
         {currentPage === 'myAlerts' && <MyAlerts alerts={alerts} />}
+        {currentPage === 'nearbyServices' && <NearbyServices location={location} />}
 
       </main>
     </div>
@@ -718,6 +726,181 @@ function MyAlerts({ alerts }) {
           ))
         )}
       </div>
+    </div>
+  );
+}
+
+
+
+
+
+function NearbyServices({ location }) {
+  const [services, setServices] = useState({ hospitals: [], police: [], pharmacies: [] });
+  const [loading, setLoading] = useState(true);
+  const [selectedType, setSelectedType] = useState('all');
+
+  useEffect(() => {
+    if (location) {
+      fetchNearbyServices();
+    }
+  }, [location]);
+
+  const fetchNearbyServices = async () => {
+   setLoading(true);
+   try {
+    // ✅ CORRECT: radius should be 5 (km), not 5000
+    const response = await fetch(
+      `${API_URL}/places/emergency-services?latitude=${location.latitude}&longitude=${location.longitude}&radius=5`
+    );
+    
+    // Add error checking
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('Services data:', data); // Debug log
+    setServices(data);
+   } catch (error) {
+    console.error('Error fetching services:', error);
+    // Optional: Show error to user
+    alert('Failed to load nearby services. Please try again.');
+    }
+   setLoading(false); 
+  };
+
+  const openInMaps = (lat, lng, name) => {
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+    window.open(url, '_blank');
+  };
+
+  if (loading) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-xl text-gray-600">Loading nearby services...</div>
+      </div>
+    );
+  }
+
+  const ServiceCard = ({ service }) => (
+    <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all">
+      <div className="flex justify-between items-start mb-3">
+        <div className="flex-1">
+          <h3 className="text-lg font-bold text-gray-800 mb-1">{service.name}</h3>
+          <p className="text-sm text-gray-600 mb-2">{service.address}</p>
+          <div className="flex items-center gap-3 text-sm">
+            <span className="flex items-center gap-1">
+              <MapPin size={14} className="text-red-600" />
+              <span className="font-medium">{service.distance} km away</span>
+            </span>
+            {service.rating > 0 && (
+              <span className="flex items-center gap-1">
+                ⭐ {service.rating}
+              </span>
+            )}
+            {service.isOpen !== undefined && (
+              <span className={`px-2 py-1 rounded text-xs font-medium ${
+                service.isOpen ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+              }`}>
+                {service.isOpen ? 'Open Now' : 'Closed'}
+              </span>
+            )}
+          </div>
+        </div>
+        <button
+          onClick={() => openInMaps(service.location.lat, service.location.lng, service.name)}
+          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium flex items-center gap-2"
+        >
+          <MapPin size={16} />
+          Directions
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="max-w-6xl mx-auto">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">Nearby Emergency Services</h1>
+        <p className="text-gray-600">Find hospitals, police stations, and pharmacies near you</p>
+      </div>
+
+      <div className="flex gap-3 mb-6 justify-center flex-wrap">
+        <button
+          onClick={() => setSelectedType('all')}
+          className={`px-6 py-2 rounded-lg font-medium ${
+            selectedType === 'all' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          All Services
+        </button>
+        <button
+          onClick={() => setSelectedType('hospitals')}
+          className={`px-6 py-2 rounded-lg font-medium ${
+            selectedType === 'hospitals' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          🏥 Hospitals
+        </button>
+        <button
+          onClick={() => setSelectedType('police')}
+          className={`px-6 py-2 rounded-lg font-medium ${
+            selectedType === 'police' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          🚓 Police
+        </button>
+        <button
+          onClick={() => setSelectedType('pharmacies')}
+          className={`px-6 py-2 rounded-lg font-medium ${
+            selectedType === 'pharmacies' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          💊 Pharmacies
+        </button>
+      </div>
+
+      <div className="space-y-6">
+        {(selectedType === 'all' || selectedType === 'hospitals') && services.hospitals?.length > 0 && (
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">🏥 Nearby Hospitals</h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              {services.hospitals.map((hospital) => (
+                <ServiceCard key={hospital.id} service={hospital} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {(selectedType === 'all' || selectedType === 'police') && services.police?.length > 0 && (
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">🚓 Nearby Police Stations</h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              {services.police.map((station) => (
+                <ServiceCard key={station.id} service={station} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {(selectedType === 'all' || selectedType === 'pharmacies') && services.pharmacies?.length > 0 && (
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">💊 Nearby Pharmacies</h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              {services.pharmacies.map((pharmacy) => (
+                <ServiceCard key={pharmacy.id} service={pharmacy} />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {!location && (
+        <div className="text-center py-12">
+          <MapPin className="mx-auto text-gray-400 mb-4" size={64} />
+          <p className="text-gray-600">Please enable location to see nearby services</p>
+        </div>
+      )}
     </div>
   );
 }
