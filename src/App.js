@@ -4,8 +4,7 @@ import { AlertTriangle, MapPin, Phone, User, LogOut, Activity, CheckCircle, Cloc
 
 
 
-const API_URL = 'https://safelink-backend-hw4h.onrender.com/api';
-
+const API_URL = 'http://localhost:5001/api';
 export default function SafeLinkApp() {
   const [currentPage, setCurrentPage] = useState('home');
   const [user, setUser] = useState(null);
