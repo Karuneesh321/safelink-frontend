@@ -1,8 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  AlertTriangle,
+  MapPin,
+  Phone,
+  User,
+  LogOut,
+  Activity,
+  CheckCircle,
+  Clock,
+  Users,
+  Bell
+} from 'lucide-react';
 
-
-
-const API_URL = 'http://localhost:5001/api';
+const API_URL = 'https://safelink-backend-hw4h.onrender.com';
 
 export default function SafeLinkApp() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -12,20 +22,40 @@ export default function SafeLinkApp() {
   const [stats, setStats] = useState({});
   const [location, setLocation] = useState(null);
 
-  useEffect(() => {
-    if (token) {
-      const userData = JSON.parse(localStorage.getItem('user') || '{}');
-      setUser(userData);
-      
-      if (userData.role === 'admin' || userData.role === 'volunteer') {
-        fetchAlerts();
-        fetchStats();
-      } else {
-        fetchMyAlerts();
-      }
+  const fetchAlerts = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_URL}/alerts`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await response.json();
+      setAlerts(data.alerts || []);
+    } catch (err) {
+      console.error(err);
     }
-    
-    getCurrentLocation();
+  }, [token]);
+
+  const fetchMyAlerts = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_URL}/alerts`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await response.json();
+      setAlerts(data.alerts || []);
+    } catch (err) {
+      console.error(err);
+    }
+  }, [token]);
+
+  const fetchStats = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_URL}/stats`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await response.json();
+      setStats(data);
+    } catch (err) {
+      console.error(err);
+    }
   }, [token]);
 
   const getCurrentLocation = () => {
@@ -42,31 +72,21 @@ export default function SafeLinkApp() {
     }
   };
 
-  
+  useEffect(() => {
+    if (token) {
+      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      setUser(userData);
 
-  const fetchMyAlerts = async () => {
-    try {
-      const response = await fetch(`${API_URL}/alerts`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await response.json();
-      setAlerts(data.alerts || []);
-    } catch (error) {
-      console.error('Fetch my alerts error:', error);
+      if (userData.role === 'admin' || userData.role === 'volunteer') {
+        fetchAlerts();
+        fetchStats();
+      } else {
+        fetchMyAlerts();
+      }
     }
-  };
 
-  const fetchStats = async () => {
-    try {
-      const response = await fetch(`${API_URL}/stats`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await response.json();
-      setStats(data);
-    } catch (error) {
-      console.error('Fetch stats error:', error);
-    }
-  };
+    getCurrentLocation();
+  }, [token, fetchAlerts, fetchStats, fetchMyAlerts]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -77,17 +97,11 @@ export default function SafeLinkApp() {
   };
 
   if (!token) {
-    return (
-      <>
-        
-        <LandingPage setToken={setToken} setUser={setUser} setCurrentPage={setCurrentPage} />
-      </>
-    );
+    return <LandingPage setToken={setToken} setUser={setUser} setCurrentPage={setCurrentPage} />;
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50">
-      
       <header className="bg-white shadow-md">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
@@ -120,20 +134,6 @@ export default function SafeLinkApp() {
             </button>
 
             <button
-              onClick={() => setCurrentPage('guides')}
-              className={`px-4 py-2 rounded-lg ${currentPage === 'guides' ? 'bg-red-600 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
-            >
-              Guides
-            </button>
-
-            <button
-              onClick={() => setCurrentPage('about')}
-              className={`px-4 py-2 rounded-lg ${currentPage === 'about' ? 'bg-red-600 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
-            >
-              About
-            </button>
-
-            <button
               onClick={() => setCurrentPage('nearbyServices')}
               className={`px-4 py-2 rounded-lg ${currentPage === 'nearbyServices' ? 'bg-red-600 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
             >
@@ -161,7 +161,6 @@ export default function SafeLinkApp() {
         {currentPage === 'dashboard' && <Dashboard alerts={alerts} stats={stats} token={token} fetchAlerts={fetchAlerts} />}
         {currentPage === 'myAlerts' && <MyAlerts alerts={alerts} />}
         {currentPage === 'nearbyServices' && <NearbyServices location={location} />}
-
       </main>
     </div>
   );
@@ -475,23 +474,22 @@ function HomePage({ location, token, fetchMyAlerts }) {
             </div>
           </div>
         )}
+        
         {location && (
-  <div className="mt-4 rounded-xl overflow-hidden shadow">
-    <iframe
-      title="User Location Map"
-      width="100%"
-      height="300"
-      style={{ border: 0 }}
-      loading="lazy"
-      allowFullScreen
-      src={`https://www.google.com/maps?q=${location.latitude},${location.longitude}&z=15&output=embed`}
-    />
-  </div>
-)}
-
+          <div className="mt-4 rounded-xl overflow-hidden shadow">
+            <iframe
+              title="User Location Map"
+              width="100%"
+              height="300"
+              style={{ border: 0 }}
+              loading="lazy"
+              allowFullScreen
+              src={`https://www.google.com/maps?q=${location.latitude},${location.longitude}&z=15&output=embed`}
+            />
+          </div>
+        )}
       </div>
     </div>
-    
   );
 }
 
@@ -718,10 +716,6 @@ function MyAlerts({ alerts }) {
   );
 }
 
-
-
-
-
 function NearbyServices({ location }) {
   const [services, setServices] = useState({ hospitals: [], police: [], pharmacies: [] });
   const [loading, setLoading] = useState(true);
@@ -731,33 +725,30 @@ function NearbyServices({ location }) {
     if (location) {
       fetchNearbyServices();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);
 
   const fetchNearbyServices = async () => {
-   setLoading(true);
-   try {
-    // ✅ CORRECT: radius should be 5 (km), not 5000
-    const response = await fetch(
-      `${API_URL}/places/emergency-services?latitude=${location.latitude}&longitude=${location.longitude}&radius=5`
-    );
-    
-    // Add error checking
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `${API_URL}/places/emergency-services?latitude=${location.latitude}&longitude=${location.longitude}&radius=5`
+      );
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      setServices(data);
+    } catch (error) {
+      console.error('Error fetching services:', error);
+      alert('Failed to load nearby services. Please try again.');
     }
-    
-    const data = await response.json();
-    console.log('Services data:', data); // Debug log
-    setServices(data);
-   } catch (error) {
-    console.error('Error fetching services:', error);
-    // Optional: Show error to user
-    alert('Failed to load nearby services. Please try again.');
-    }
-   setLoading(false); 
+    setLoading(false);
   };
 
-  const openInMaps = (lat, lng, name) => {
+  const openInMaps = (lat, lng) => {
     const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
     window.open(url, '_blank');
   };
@@ -796,7 +787,7 @@ function NearbyServices({ location }) {
           </div>
         </div>
         <button
-          onClick={() => openInMaps(service.location.lat, service.location.lng, service.name)}
+          onClick={() => openInMaps(service.location.lat, service.location.lng)}
           className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium flex items-center gap-2"
         >
           <MapPin size={16} />
@@ -892,4 +883,3 @@ function NearbyServices({ location }) {
     </div>
   );
 }
-
