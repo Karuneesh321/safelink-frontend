@@ -1,24 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
-
-import {
-  AlertTriangle,
-  MapPin,
-  Phone,
-  User,
-  LogOut,
-  Activity,
-  CheckCircle,
-  Clock,
-  Users,
-  Bell
-} from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { AlertTriangle, MapPin, Phone, User, LogOut, Activity, CheckCircle, Clock, Users, Bell, Info, BookOpen, Mail, Building, Award, Target, Shield } from 'lucide-react';
 
 
 
 
+const API_URL = 'http://localhost:5001/api';
 
-
-const API_URL = 'https://safelink-backend-hw4h.onrender.com';
 export default function SafeLinkApp() {
   const [currentPage, setCurrentPage] = useState('home');
   const [user, setUser] = useState(null);
@@ -27,51 +14,21 @@ export default function SafeLinkApp() {
   const [stats, setStats] = useState({});
   const [location, setLocation] = useState(null);
 
-
-  const fetchAlerts = useCallback(async () => {
-  try {
-    const response = await fetch(`${API_URL}/alerts`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const data = await response.json();
-    setAlerts(data.alerts || []);
-  } catch (err) {
-    console.error(err);
-  }
-}, [token]);
-
-
-const fetchStats = useCallback(async () => {
-  try {
-    const response = await fetch(`${API_URL}/stats`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const data = await response.json();
-    setStats(data);
-  } catch (err) {
-    console.error(err);
-  }
-}, [token]);
-
-
-  
-
   useEffect(() => {
-  if (token) {
-    const userData = JSON.parse(localStorage.getItem('user') || '{}');
-    setUser(userData);
-
-    if (userData.role === 'admin' || userData.role === 'volunteer') {
-      fetchAlerts();
-      fetchStats();
-    } else {
-      fetchMyAlerts();
+    if (token) {
+      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      setUser(userData);
+      
+      if (userData.role === 'admin' || userData.role === 'volunteer') {
+        fetchAlerts();
+        fetchStats();
+      } else {
+        fetchMyAlerts();
+      }
     }
-  }
-
-  getCurrentLocation();
-}, [token, fetchAlerts, fetchStats, fetchMyAlerts]);
-
+    
+    getCurrentLocation();
+  }, [token]);
 
   const getCurrentLocation = () => {
     if (navigator.geolocation) {
