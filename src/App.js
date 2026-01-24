@@ -42,17 +42,7 @@ export default function SafeLinkApp() {
     }
   };
 
-  const fetchAlerts = async () => {
-    try {
-      const response = await fetch(`${API_URL}/alerts`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await response.json();
-      setAlerts(data.alerts || []);
-    } catch (error) {
-      console.error('Fetch alerts error:', error);
-    }
-  };
+  
 
   const fetchMyAlerts = async () => {
     try {
