@@ -4,7 +4,7 @@ import { AlertTriangle, MapPin, Phone, User, LogOut, Activity, CheckCircle, Cloc
 
 
 
-const API_URL = 'http://localhost:5001/api';
+const API_URL = 'https://safelink-backend.vercel.app/api';
 export default function SafeLinkApp() {
   const [currentPage, setCurrentPage] = useState('home');
   const [user, setUser] = useState(null);
